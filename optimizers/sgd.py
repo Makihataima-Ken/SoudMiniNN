@@ -5,5 +5,5 @@ class SGD(BaseOptimizer):
         self.lr = lr
 
     def update(self, params, grads):
-        for k in params:
-            params[k] -= self.lr * grads[k]
+        for key in params:
+            params[key] -= self.lr * grads[key]
