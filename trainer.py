@@ -24,3 +24,8 @@ class Trainer:
             loss = self.train_step(x, y)
             if e % 10 == 0:
                 print(f"Epoch {e}, Loss: {loss:.4f}")
+                
+    def accuracy(model, X, y):
+        logits = model.forward(X, training=False)
+        predictions = np.argmax(logits, axis=1)
+        return np.mean(predictions == y)

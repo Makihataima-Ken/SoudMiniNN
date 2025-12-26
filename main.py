@@ -1,51 +1,49 @@
+from sklearn.datasets import load_iris
+from .layers.dense import Dense
+from .layers.batchnorm import BatchNorm
+from .layers.activations import ReLU, Sigmoid
+from .losses.softmax_func import SoftmaxCrossEntropy
+from .optimizers.sgd import SGD
+from .network import NeuralNetwork
+from .trainer import Trainer
+
 def main():
-    print("Hello from nn-hw!")
+
+    import numpy as np
+    from sklearn.datasets import load_iris
+    from sklearn.model_selection import train_test_split
+
+    X, y = load_iris(return_X_y=True)
+
+    X = X.astype(np.float32)
+    y = y.astype(np.int64)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+
+    model = NeuralNetwork(
+        layers=[
+            Dense(4, 16),
+            Sigmoid(),
+            BatchNorm(16),
+            Dense(16, 8),
+            ReLU(),
+            Dense(8, 3)
+        ],
+        loss=SoftmaxCrossEntropy()
+    )
+
+    trainer = Trainer(model, SGD(lr=0.1))
+    trainer.fit(X, y, epochs=200)
     
-    def bestClosingTime(customers: str) -> int:
-        y = [0]*len(customers)
-        n = [0]*len(customers)
-        m = len(customers)
-        
-        wy, wn = 0, 0
-        for i in range(m):
-            if i == 0:
-                if customers[i] == 'Y':
-                    y[i] = 1
-                    wy = y[i]
-                if customers[i] == 'N':
-                    n[i] = 1
-                    wn = n[i]
-            elif customers[i] == 'Y':
-                y[i] = wy+1
-                wy = y[i]
-                n[i] = wn
-            elif customers[i] == 'N':
-                n[i] = wn+1
-                wn = n[i]
-                y[i] = wy
-            
+    train_acc = trainer.accuracy(model, X_train, y_train)
+    test_acc = trainer.accuracy(model, X_test, y_test)
 
-        ans = 0
-        min_penalty = m+1
-        for i in range(m):
-            current_penalty = (y[m-1]-y[i]) + n[i]
-            if customers[i] == 'Y':
-                current_penalty +=1
-            if current_penalty < min_penalty:
-                print(f"Updating min_penalty: {min_penalty} -> {current_penalty} at i: {i}")
-                min_penalty = current_penalty
-                ans = i
-
-        if ans == 0 and customers[0] == 'N':
-            return 0
-        
-        return ans + 1
+    print(f"Train Accuracy: {train_acc:.2f}")
+    print(f"Test Accuracy: {test_acc:.2f}")
 
 
-    print(bestClosingTime("YYNY"))
-    print(bestClosingTime("NNNNN"))
-    print(bestClosingTime("YYYY"))
-    print(bestClosingTime("YNYY"))
-    print(bestClosingTime("NYNNNYYN"))
 if __name__ == "__main__":
     main()
