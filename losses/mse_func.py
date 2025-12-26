@@ -1,5 +1,5 @@
 import numpy as np
-from base_loss import Loss
+from .base_loss import Loss
 
 class MeanSquaredError(Loss):
     def forward(self, y_pred, y_true):

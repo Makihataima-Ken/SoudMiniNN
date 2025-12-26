@@ -1,5 +1,5 @@
 import numpy as np
-from base_layer import Layer
+from .base_layer import Layer
 
 class BatchNormalization(Layer):
     def __init__(self, gamma, beta, momentum=0.9, running_mean=None, running_var=None):

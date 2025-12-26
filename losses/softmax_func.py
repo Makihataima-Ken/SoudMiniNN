@@ -1,5 +1,5 @@
 import numpy as np
-from base_loss import Loss
+from .base_loss import Loss
 
 class SoftmaxCrossEntropy(Loss):
     def forward(self, logits, y_true):

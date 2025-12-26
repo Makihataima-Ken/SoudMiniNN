@@ -1,5 +1,5 @@
 from layers.base_layer import Layer
-from Losses.base_loss import Loss
+from losses.base_loss import Loss
 from typing import List
 
 class NeuralNetwork:

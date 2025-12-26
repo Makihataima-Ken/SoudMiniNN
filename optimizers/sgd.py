@@ -1,4 +1,4 @@
-from base_optimizer import Optimizer
+from .base_optimizer import Optimizer
 
 class SGD(Optimizer):
     def __init__(self, lr=0.01):

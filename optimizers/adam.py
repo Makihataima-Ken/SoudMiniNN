@@ -1,5 +1,5 @@
 import numpy as np
-from base_optimizer import Optimizer
+from .base_optimizer import Optimizer
 
 class Adam(Optimizer):
     def __init__(self, lr=0.001, beta1=0.9, beta2=0.999):
