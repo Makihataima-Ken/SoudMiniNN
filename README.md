@@ -114,11 +114,3 @@ Further reading
 
 - Study the implementations in `SoudMiniNN/layers`, `SoudMiniNN/losses`, and `SoudMiniNN/optimizers` to understand the mechanics of forward/backward propagation and parameter updates.
 - Use the package as a learning tool before moving to feature-rich frameworks like PyTorch or TensorFlow for production workloads.
-
-Questions or next steps
-----------------------
-
-If you want, I can:
-- add runnable example scripts under `examples/` that demonstrate training on toy datasets,
-- create unit tests for core components, or
-- add a `requirements.txt` and CI configuration for automated testing.
