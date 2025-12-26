@@ -1,7 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 
-class BaseLayer(ABC):
+class Layer(ABC):
     
     @abstractmethod
     def forward(self, x, training=True):
