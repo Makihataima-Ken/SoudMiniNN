@@ -1,6 +1,6 @@
-from base_optimizer import BaseOptimizer
+from base_optimizer import Optimizer
 
-class SGD(BaseOptimizer):
+class SGD(Optimizer):
     def __init__(self, lr=0.01):
         self.lr = lr
 

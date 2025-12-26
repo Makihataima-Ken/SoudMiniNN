@@ -1,7 +1,7 @@
 import numpy as np
-from base_optimizer import BaseOptimizer
+from base_optimizer import Optimizer
 
-class AdaGrad(BaseOptimizer):
+class AdaGrad(Optimizer):
     def __init__(self, lr=0.01):
         self.lr = lr
         self.h = None

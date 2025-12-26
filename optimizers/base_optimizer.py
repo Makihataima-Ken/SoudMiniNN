@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class BaseOptimizer(ABC):
+class Optimizer(ABC):
     @abstractmethod
     def update(self, params, grads):
         pass
