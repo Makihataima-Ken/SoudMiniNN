@@ -1,6 +1,7 @@
 import numpy as np
+from base_loss import Loss
 
-class SoftmaxCrossEntropy:
+class SoftmaxCrossEntropy(Loss):
     def forward(self, logits, y_true):
         exp = np.exp(logits - np.max(logits, axis=1, keepdims=True))
         self.probs = exp / np.sum(exp, axis=1, keepdims=True)
