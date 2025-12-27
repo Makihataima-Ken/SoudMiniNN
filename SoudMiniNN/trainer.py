@@ -29,3 +29,7 @@ class Trainer:
         logits = self.model.forward(X, training=False)
         predictions = np.argmax(logits, axis=1)
         return np.mean(predictions == y)
+
+    def predict(self, X):
+        logits = self.model.forward(X, training=False)
+        return np.argmax(logits, axis=1)
