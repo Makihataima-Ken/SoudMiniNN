@@ -40,11 +40,11 @@ class BatchNorm(Layer):
         out = self.gamma * xn + self.beta
         return out
     
-    def backward(self, dout):
+    def backward(self, grad):
         
-        dbeta = dout.sum(axis=0)
-        dgamma = np.sum(self.xn * dout, axis=0)
-        dxn = self.gamma * dout
+        dbeta = grad.sum(axis=0)
+        dgamma = np.sum(self.xn * grad, axis=0)
+        dxn = self.gamma * grad
         dxc = dxn / self.std
         dstd = -np.sum((dxn * self.xc) / (self.std * self.std), axis=0)
         dvar = 0.5 * dstd / self.std

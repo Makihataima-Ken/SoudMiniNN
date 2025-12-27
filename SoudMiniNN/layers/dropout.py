@@ -2,16 +2,18 @@ import numpy as np
 from .base_layer import Layer
 
 class Dropout(Layer):
-    def __init__(self, dropout_ratio=0.5):
-        self.dropout_ratio = dropout_ratio
+    def __init__(self, rate=0.5):
+        self.rate = rate
         self.mask = None
 
-    def forward(self, x, train_flg=True):
-        if train_flg:
-            self.mask = np.random.rand(*x.shape) > self.dropout_ratio
+    def forward(self, x, training=True):
+        if training:
+            self.mask = np.random.rand(*x.shape) > self.rate
             return x * self.mask
         else:
-            return x * (1.0 - self.dropout_ratio)
+            return x * (1.0 - self.rate)
 
-    def backward(self, dout):
-        return dout * self.mask
+    def backward(self, grad):
+        if self.mask is None:
+            return grad
+        return grad * self.mask
