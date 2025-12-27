@@ -10,7 +10,7 @@ class Adam(Optimizer):
         self.m = None
         self.v = None
 
-    def update(self, params, grads):
+    def update(self, params:dict, grads:dict):
         if self.m is None:
             self.m, self.v = {}, {}
             for key, val in params.items():

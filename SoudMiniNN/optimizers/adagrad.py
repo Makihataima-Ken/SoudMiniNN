@@ -6,7 +6,7 @@ class AdaGrad(Optimizer):
         self.lr = lr
         self.h = None
 
-    def update(self, params, grads):
+    def update(self, params:dict, grads:dict):
         if self.h is None:
             self.h = {}
             for key, val in params.items():
