@@ -7,12 +7,9 @@ class Dense(Layer):
         self.W = np.random.randn(input_size, output_size) * 0.01
         self.b = np.zeros((1, output_size))
         
-        # # Placeholders for gradients
-        # self.dW = np.zeros_like(self.W)
-        # self.db = np.zeros_like(self.b)
-        
-        # # Placeholder for input data
-        # self.input = None
+        self.x = None
+        self.dW = None
+        self.db = None
         
     def forward(self, x, training=True):
         self.x = x

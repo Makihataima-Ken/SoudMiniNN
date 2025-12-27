@@ -14,14 +14,14 @@ class BatchNorm(Layer):
         self.dgamma = None
         self.dbeta = None
 
-    def forward(self, x, train_flg=True):
+    def forward(self, x, traininig=True):
         
         if self.running_mean is None:
             N, D = x.shape
             self.running_mean = np.zeros(D)
             self.running_var = np.zeros(D)
 
-        if train_flg:
+        if traininig:
             mu = x.mean(axis=0)
             xc = x - mu
             var = np.mean(xc**2, axis=0)
@@ -39,6 +39,7 @@ class BatchNorm(Layer):
 
         out = self.gamma * xn + self.beta
         return out
+    
     def backward(self, dout):
         
         dbeta = dout.sum(axis=0)
