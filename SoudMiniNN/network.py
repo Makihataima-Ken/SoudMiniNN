@@ -16,7 +16,16 @@ class NeuralNetwork:
         for layer in reversed(self.layers):
             grad = layer.backward(grad)
 
-    def params_and_grads(self):
-        for layer in self.layers:
+    def get_params(self):
+        params = {}
+        for i, layer in enumerate(self.layers):
             for name, param in layer.params().items():
-                yield param, layer.grads()[name]
+                params[f'layer_{i}_{name}'] = param
+        return params
+
+    def get_grads(self):
+        grads = {}
+        for i, layer in enumerate(self.layers):
+            for name, grad in layer.grads().items():
+                grads[f'layer_{i}_{name}'] = grad
+        return grads

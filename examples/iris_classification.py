@@ -12,7 +12,7 @@ model = NeuralNetwork(
     layers=[
         Dense(4, 16),
         Sigmoid(),
-        BatchNorm(16,16),
+        BatchNorm(16),
         Dense(16, 8),
         ReLU(),
         Dense(8, 3)

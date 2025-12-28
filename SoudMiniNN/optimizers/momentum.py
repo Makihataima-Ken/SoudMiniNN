@@ -9,8 +9,9 @@ class Momentum(Optimizer):
     def update(self, params:dict, grads:dict):
         if self.v is None:
           self.v = {}
-        for key, val in params.items():
-          self.v[key] = np.zeros_like(val)
+          for key, val in params.items():
+            self.v[key] = np.zeros_like(val)
+            
         for key in params.keys():
           self.v[key] = self.momentum*self.v[key] - self.lr*grads[key]
           params[key] += self.v[key]

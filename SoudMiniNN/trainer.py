@@ -13,9 +13,9 @@ class Trainer:
         grad = self.model.loss_func.backward()
         self.model.backward(grad)
 
-        for layer in self.model.layers:
-            if layer.params():
-                self.optimizer.update(layer.params(), layer.grads())
+        params = self.model.get_params()
+        grads = self.model.get_grads()
+        self.optimizer.update(params, grads)
 
         return loss
 
