@@ -11,11 +11,13 @@ from .losses.softmax_func import SoftmaxCrossEntropy
 
 from .optimizers.sgd import SGD
 from .optimizers.adam import Adam
+from .optimizers.momentum import Momentum
+from .optimizers.adagrad import AdaGrad
 
 
 __all__ = [
     "Dense", "Sigmoid", "ReLU", "BatchNorm","Tanh", "Dropout",
     "SoftmaxCrossEntropy", "MeanSquaredError",
-    "SGD", "Adam",
+    "SGD", "Adam", "Momentum", "AdaGrad",
     "NeuralNetwork", "Trainer",
 ]
