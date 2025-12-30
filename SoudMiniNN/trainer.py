@@ -18,12 +18,6 @@ class Trainer:
         self.optimizer.update(params, grads)
 
         return loss
-
-    def fit(self, x, y, epochs=100):
-        for e in range(epochs):
-            loss = self.train_step(x, y)
-            if e % 10 == 0:
-                print(f"Epoch {e}, Loss: {loss:.4f}")
                 
     def fit(self, x, y, epochs=100, batch_size=32):
         num_samples = x.shape[0]
