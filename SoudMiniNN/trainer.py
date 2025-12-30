@@ -51,9 +51,16 @@ class Trainer:
                 
     def accuracy(self, X, y):
         logits = self.model.forward(X, training=False)
-        predictions = np.argmax(logits, axis=1)
+        if logits.shape[1] == 1:
+            predictions = (logits > 0.5).astype(int)
+        else:
+            predictions = np.argmax(logits, axis=1)
         return np.mean(predictions == y)
 
     def predict(self, X):
         logits = self.model.forward(X, training=False)
-        return np.argmax(logits, axis=1)
+        if logits.shape[1] == 1:
+            predictions = (logits > 0.5).astype(int)
+        else:
+            predictions = np.argmax(logits, axis=1)
+        return predictions
