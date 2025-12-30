@@ -1,10 +1,9 @@
-import numpy as np
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from soudmininn import (
-    Dense, ReLU, Dropout, BatchNorm,
+    Dense, ReLU, Dropout,
     NeuralNetwork, Trainer, AdaGrad, SoftmaxCrossEntropy
 )
 
