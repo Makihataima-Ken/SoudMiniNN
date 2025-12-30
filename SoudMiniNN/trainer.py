@@ -25,6 +25,30 @@ class Trainer:
             if e % 10 == 0:
                 print(f"Epoch {e}, Loss: {loss:.4f}")
                 
+    def fit(self, x, y, epochs=100, batch_size=32):
+        num_samples = x.shape[0]
+        
+        for e in range(epochs):
+            epoch_loss = 0
+            
+            # Shuffle the data at the start of each epoch
+            permutation = np.random.permutation(num_samples)
+            x_shuffled = x[permutation]
+            y_shuffled = y[permutation]
+            
+            # Iterate over mini-batches
+            for i in range(0, num_samples, batch_size):
+                x_batch = x_shuffled[i:i+batch_size]
+                y_batch = y_shuffled[i:i+batch_size]
+                
+                loss = self.train_step(x_batch, y_batch)
+                epoch_loss += loss * x_batch.shape[0] # Weight loss by batch size
+
+            # Print average loss for the epoch
+            avg_epoch_loss = epoch_loss / num_samples
+            if e % 10 == 0:
+                print(f"Epoch {e}, Loss: {avg_epoch_loss:.4f}")
+                
     def accuracy(self, X, y):
         logits = self.model.forward(X, training=False)
         predictions = np.argmax(logits, axis=1)
