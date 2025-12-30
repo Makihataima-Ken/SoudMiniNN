@@ -23,6 +23,15 @@ Note: the distribution name in `setup.py` is `SoudMiniNN` (project/distribution 
 **Install & run**
 Create and activate a virtual environment, then install dependencies.
 
+# SoudMiniNN
+
+Minimal educational neural-network library implemented with NumPy.
+This repository provides a compact, from-scratch implementation useful for learning and experimentation.
+
+## Quick start
+
+1. Create and activate a virtual environment:
+
 Windows PowerShell:
 ```powershell
 python -m venv .venv
@@ -30,12 +39,35 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Run the iris example:
+2. Run an example (iris classification):
 ```powershell
 python examples/iris_classification.py
 ```
 
-**Usage (imports)**
+## What’s in this repo
+
+- Package: `soudmininn`
+  - `network.py` — model and forward/backward orchestration
+  - `trainer.py` — basic training loop utilities
+  - `layers/` — layer implementations:
+    - `dense.py`, `dropout.py`, `batchnorm.py`, `activations.py`, `base_layer.py`
+  - `losses/` — loss implementations: `mse_func.py`, `softmax_func.py`, `base_loss.py`
+  - `optimizers/` — optimizers: `sgd.py`, `momentum.py`, `adagrad.py`, `adam.py`, `base_optimizer.py`
+- `examples/` — runnable example scripts demonstrating classification and regression (see `examples/iris_classification.py`, `examples/mnist_classification.py`, etc.)
+- Project metadata: `setup.py`, `pyproject.toml`, `requirements.txt`
+
+Note: the distribution name in `setup.py` is `SoudMiniNN`, while the importable package is `soudmininn`.
+
+## Highlights
+
+- NumPy-only implementation (dependency: `numpy`).
+- Modular design: add new layers, losses, or optimizers by following the existing module patterns.
+- Included optimizers: SGD, Momentum, Adagrad, Adam.
+
+## Example usage
+
+Typical imports:
+
 ```python
 from soudmininn.network import Network
 from soudmininn.trainer import Trainer
@@ -45,6 +77,13 @@ from soudmininn.losses.mse_func import MSE
 from soudmininn.optimizers.sgd import SGD
 ```
 
-**Development notes**
-- Add new layers, losses, or optimizers by following existing module patterns.
-- Consider adding `pytest` tests for layers and optimizers when extending the codebase.
+See the `examples/` folder for end-to-end scripts demonstrating how to build models, train them, and evaluate results.
+
+## Development
+
+- Add unit tests when extending functionality (recommended: `pytest`).
+- Follow existing module patterns when adding layers, losses, or optimizers.
+
+## License
+
+See the `LICENSE` file at the project root.
