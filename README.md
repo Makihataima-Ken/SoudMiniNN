@@ -3,34 +3,14 @@ SoudMiniNN — Minimal NumPy Neural Network (package: `soudmininn`)
 Compact, educational neural-network library implemented with NumPy. The project is intended for learning and experimentation and favors clarity and simplicity over production performance.
 
 **Repository layout**
-- Package: [soudmininn](soudmininn)
-  - `network.py` — model assembly and orchestration
-  - `trainer.py` — simple training loop utilities
-  - `layers/` — layer modules (`dense.py`, `dropout.py`, `batchnorm.py`, `activations.py`, `base_layer.py`)
-  - `losses/` — loss modules (`mse_func.py`, `softmax_func.py`, `base_loss.py`)
-  - `optimizers/` — optimizers (`sgd.py`, `momentum.py`, `adagrad.py`, `adam.py`, `base_optimizer.py`)
-- `examples/` — example scripts (see [examples/iris_classification.py](examples/iris_classification.py))
-- Project metadata at root: [setup.py](setup.py), `pyproject.toml`, `requirements.txt`
-
-Note: the distribution name in `setup.py` is `SoudMiniNN` (project/distribution name), while the importable package folder is `soudmininn`.
-
-**Key features**
-- NumPy-only implementation (dependency: `numpy`)
-- Modular layers, loss functions, and optimizers for experimentation
-- Implemented optimizers: SGD, Momentum, Adagrad, Adam
-- Trainer utilities and an iris classification example included
-
-**Install & run**
-Create and activate a virtual environment, then install dependencies.
-
 # SoudMiniNN
 
-Minimal educational neural-network library implemented with NumPy.
-This repository provides a compact, from-scratch implementation useful for learning and experimentation.
+Minimal, educational neural-network framework implemented from scratch using NumPy.
+This repository is intended for learning and experimenting with core neural-network concepts.
 
-## Quick start
+## Install
 
-1. Create and activate a virtual environment:
+Create and activate a virtual environment and install dependencies:
 
 Windows PowerShell:
 ```powershell
@@ -39,50 +19,54 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-2. Run an example (iris classification):
+Or install the package in editable mode for development:
 ```powershell
-python examples/iris_classification.py
+pip install -e .
 ```
 
-## What’s in this repo
+## Project layout
 
 - Package: `soudmininn`
-  - `network.py` — model and forward/backward orchestration
-  - `trainer.py` — basic training loop utilities
-  - `layers/` — layer implementations:
-    - `dense.py`, `dropout.py`, `batchnorm.py`, `activations.py`, `base_layer.py`
-  - `losses/` — loss implementations: `mse_func.py`, `softmax_func.py`, `base_loss.py`
-  - `optimizers/` — optimizers: `sgd.py`, `momentum.py`, `adagrad.py`, `adam.py`, `base_optimizer.py`
-- `examples/` — runnable example scripts demonstrating classification and regression (see `examples/iris_classification.py`, `examples/mnist_classification.py`, etc.)
+  - `network.py` — model assembly and orchestration
+  - `trainer.py` — training loop utilities
+  - `layers/` — layer implementations (`dense.py`, `dropout.py`, `batchnorm.py`, `activations.py`, `base_layer.py`)
+  - `losses/` — loss functions (`mse_func.py`, `softmax_func.py`, `base_loss.py`, `softmax_func.py`)
+  - `optimizers/` — optimizers (`sgd.py`, `momentum.py`, `adagrad.py`, `adam.py`, `base_optimizer.py`)
+- `examples/` — example scripts: `iris_classification.py`, `mnist_classification.py`, `digit_classification.py`, `binary_classification.py`, `regression_california.py`
 - Project metadata: `setup.py`, `pyproject.toml`, `requirements.txt`
 
-Note: the distribution name in `setup.py` is `SoudMiniNN`, while the importable package is `soudmininn`.
+The distribution name in `setup.py` is `SoudMiniNN`, while the importable package is `soudmininn`.
 
-## Highlights
+## Quick usage
 
-- NumPy-only implementation (dependency: `numpy`).
-- Modular design: add new layers, losses, or optimizers by following the existing module patterns.
-- Included optimizers: SGD, Momentum, Adagrad, Adam.
+1. Build a small model using the provided layers.
+2. Choose a loss and optimizer and run the training loop in `Trainer`.
 
-## Example usage
-
-Typical imports:
-
+Example (see `examples/` for full scripts):
 ```python
 from soudmininn.network import Network
 from soudmininn.trainer import Trainer
 from soudmininn.layers.dense import Dense
 from soudmininn.layers.activations import ReLU, Softmax
-from soudmininn.losses.mse_func import MSE
+from soudmininn.losses.softmax_func import SoftmaxCrossEntropy
 from soudmininn.optimizers.sgd import SGD
+
+# build model, trainer, then train using examples as a reference
 ```
 
-See the `examples/` folder for end-to-end scripts demonstrating how to build models, train them, and evaluate results.
+## Examples
 
-## Development
+Run an example script from the repository root:
+```powershell
+python examples/iris_classification.py
+python examples/mnist_classification.py
+```
 
-- Add unit tests when extending functionality (recommended: `pytest`).
-- Follow existing module patterns when adding layers, losses, or optimizers.
+## Development notes
+
+- Dependency: `numpy` (listed in `requirements.txt`)
+- Follow module patterns when adding new layers, losses, or optimizers.
+- Consider adding tests (`pytest`) when extending functionality.
 
 ## License
 
