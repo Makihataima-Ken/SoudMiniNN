@@ -11,12 +11,12 @@ def main():
 
     model = NeuralNetwork(
         layers=[
-            Dense(4, 16),
+            Dense(4, 16,  "xavier"),
             Sigmoid(),
             BatchNorm(16),
             Dense(16, 8),
             ReLU(),
-            Dense(8, 3)
+            Dense(8, 3,  "xavier")
         ],
         loss=SoftmaxCrossEntropy()
     )

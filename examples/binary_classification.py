@@ -23,7 +23,7 @@ def main():
             ReLU(),
             Dense(32, 16),
             ReLU(),
-            Dense(16, 1),
+            Dense(16, 1,  "xavier"),
             Sigmoid()
         ],
         loss=MeanSquaredError()

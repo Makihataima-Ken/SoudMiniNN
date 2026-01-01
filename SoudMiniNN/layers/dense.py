@@ -2,9 +2,13 @@ import numpy as np
 from .base_layer import Layer
 
 class Dense(Layer):
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size, init ="he"):
         
-        self.W = np.random.randn(input_size, output_size) * 0.01
+        if init  == "he":
+            self.W = self._he_init(input_size, output_size)
+        elif init == "xavier" or init == "glorot":
+            self.W = self._xavier_init(input_size, output_size)
+
         self.b = np.zeros((1, output_size))
         
         self.x = None
@@ -25,3 +29,14 @@ class Dense(Layer):
 
     def grads(self):
         return {'W': self.dW, 'b': self.db}
+    
+    def _xavier_init(self, fan_in, fan_out):
+        std = np.sqrt(2 / (fan_in + fan_out))
+        return np.random.randn(fan_in, fan_out) * std
+    
+    def _he_init(self, fan_in, fan_out):
+        std = np.sqrt(2 / fan_in)
+        return np.random.randn(fan_in, fan_out) * std
+
+    
+    

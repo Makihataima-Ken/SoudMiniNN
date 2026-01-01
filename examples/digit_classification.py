@@ -24,7 +24,7 @@ def main():
             Dense(128, 64),
             ReLU(),
             Dropout(0.3),
-            Dense(64, 10)
+            Dense(64, 10,  "xavier")
         ],
         loss=SoftmaxCrossEntropy()
     )

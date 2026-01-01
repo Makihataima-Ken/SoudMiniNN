@@ -23,7 +23,7 @@ def main():
         Dense(256, 128),
         ReLU(),
         BatchNorm(128),
-        Dense(128, 10),
+        Dense(128, 10, "xavier"),
     ],
     loss=SoftmaxCrossEntropy()
     )                   
