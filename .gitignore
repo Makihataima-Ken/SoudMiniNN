@@ -13,3 +13,8 @@ wheels/
 .vscode/
 SoudMiniNN-output.md
 SoudMiniNN-output.txt
+
+# uv specific files
+uv.lock
+pyproject.toml
+.python-version
