@@ -40,21 +40,11 @@ class Trainer:
             if e % 10 == 0:
                 print(f"Epoch {e}, Loss: {avg_epoch_loss:.4f}")
                 
-    def accuracy(self, X, y):
-        logits = self.model.forward(X, training=False)
-        if logits.shape[1] == 1:
-            predictions = (logits > 0.5).astype(int)
-        else:
-            predictions = np.argmax(logits, axis=1)
-        return np.mean(predictions == y)
-
     def predict(self, X):
-        logits = self.model.forward(X, training=False)
-        if logits.shape[1] == 1:
-            predictions = (logits > 0.5).astype(int)
-        else:
-            predictions = np.argmax(logits, axis=1)
-        return predictions
+        return self.model.predict(X)
+
+    def accuracy(self, X, y):
+        return self.model.accuracy(X, y)
     
     def regression_score(self, X_test, y_test, scaler_y=None):
         """
