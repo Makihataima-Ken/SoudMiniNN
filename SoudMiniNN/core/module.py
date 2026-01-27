@@ -1,3 +1,4 @@
+import numpy as np # type: ignore
 from __future__ import annotations
 from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union
 from .parameter import Parameter
@@ -103,3 +104,42 @@ class Module:
     def zero_grad(self) -> None:
         for p in self.parameters():
             p.zero_grad()
+
+
+def state_dict(self) -> Dict[str, np.ndarray]:
+    """
+    Return a dictionary mapping parameter names -> numpy arrays.
+    Similar idea to torch.nn.Module.state_dict (educational).
+    """
+    sd: Dict[str, np.ndarray] = {}
+    for name, p in self.named_parameters():
+        sd[name] = p.data.copy()
+    return sd
+
+def load_state_dict(self, state: Dict[str, "np.ndarray"], strict: bool = True) -> None:
+    """
+    Load parameters from a state dict produced by state_dict().
+
+    Args:
+        state: mapping name -> array
+        strict: if True, error on missing/unexpected keys.
+    """
+    current = dict(self.named_parameters())
+    missing = []
+    unexpected = []
+
+    for k, arr in state.items():
+        if k in current:
+            p = current[k]
+            if p.data.shape != arr.shape:
+                raise ValueError(f"Shape mismatch for '{k}': expected {p.data.shape}, got {arr.shape}")
+            p.data[...] = arr
+        else:
+            unexpected.append(k)
+
+    for k in current.keys():
+        if k not in state:
+            missing.append(k)
+
+    if strict and (missing or unexpected):
+        raise KeyError(f"load_state_dict strict=True: missing={missing}, unexpected={unexpected}")
