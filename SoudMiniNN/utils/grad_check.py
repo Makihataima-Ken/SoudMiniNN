@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 from ..core.module import Module
 
 def _relative_error(a: float, b: float, eps: float = 1e-12) -> float:
@@ -78,3 +78,53 @@ def grad_check_module(
         "max_relative_error": max_rel,
         "checks": details
     }
+
+def grad_check_input(
+    module: Module,
+    x: np.ndarray,
+    dout: np.ndarray | None = None,
+    eps: float = 1e-5,
+    num_checks: int = 20,
+    seed: int = 0
+) -> dict:
+    """
+    Numerical gradient checking for input gradients dx.
+    Useful for layers without Parameters (e.g., pooling, activations).
+
+    Approximates d/dx sum(out * dout) via finite differences and compares to module.backward.
+    """
+    rng = np.random.default_rng(seed)
+    out = module.forward(x)
+    if dout is None:
+        dout = rng.standard_normal(out.shape).astype(out.dtype)
+
+    dx_ana = module.backward(dout)
+
+    def scalar_out(o: np.ndarray) -> float:
+        return float(np.sum(o * dout))
+
+    flat = x.reshape(-1)
+    dx_flat = dx_ana.reshape(-1)
+
+    idxs = rng.choice(flat.size, size=min(num_checks, flat.size), replace=False)
+
+    max_rel = 0.0
+    details = []
+    for idx in idxs:
+        old = float(flat[idx])
+
+        flat[idx] = old + eps
+        plus = scalar_out(module.forward(x))
+
+        flat[idx] = old - eps
+        minus = scalar_out(module.forward(x))
+
+        flat[idx] = old
+
+        num = (plus - minus) / (2 * eps)
+        ana = float(dx_flat[idx])
+        rel = _relative_error(num, ana)
+        max_rel = max(max_rel, rel)
+        details.append({"index": int(idx), "numeric": num, "analytic": ana, "relative_error": rel})
+
+    return {"max_relative_error": max_rel, "checks": details}
