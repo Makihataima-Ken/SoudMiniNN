@@ -1,5 +1,5 @@
-import numpy as np # type: ignore
 from __future__ import annotations
+import numpy as np  # type: ignore
 from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union
 from .parameter import Parameter
 
@@ -12,7 +12,6 @@ def _iter_params(obj: Any) -> Iterator[Tuple[str, Parameter]]:
       - list/tuple
       - dict
     """
-    from .module import Module  # local import to avoid circular in type checking contexts
 
     if isinstance(obj, Parameter):
         yield ("", obj)
@@ -104,6 +103,41 @@ class Module:
     def zero_grad(self) -> None:
         for p in self.parameters():
             p.zero_grad()
+
+    # --- Serialization helpers (PyTorch-like) ---
+    def state_dict(self) -> Dict[str, np.ndarray]:
+        """
+        Return a mapping from parameter name to a *copy* of its data.
+        Only trainable Parameters are included (buffers stay external).
+        """
+        return {name: p.data.copy() for name, p in self.named_parameters()}
+
+    def load_state_dict(self, state: Dict[str, np.ndarray], strict: bool = True) -> None:
+        """
+        Load weights from a state dict into existing Parameters.
+
+        Args:
+            state: dict of name -> ndarray (matching shapes)
+            strict: if True, raise on missing/unexpected keys; otherwise ignore them.
+        """
+        current: Dict[str, Parameter] = {name: p for name, p in self.named_parameters()}
+
+        missing = [k for k in current.keys() if k not in state]
+        unexpected = [k for k in state.keys() if k not in current]
+
+        if strict and (missing or unexpected):
+            raise KeyError(f"load_state_dict strict mismatch. missing={missing}, unexpected={unexpected}")
+
+        for name, param in current.items():
+            if name not in state:
+                continue  # non-strict: allow missing
+            arr = np.asarray(state[name])
+            if arr.shape != param.data.shape:
+                raise ValueError(f"Shape mismatch for '{name}': state {arr.shape} vs param {param.data.shape}")
+            # copy into existing array to keep optimizer references intact
+            np.copyto(param.data, arr.astype(param.data.dtype, copy=False))
+
+        # ignore unexpected keys if non-strict
 
 
 def state_dict(self) -> Dict[str, np.ndarray]:

@@ -33,12 +33,12 @@ class Trainer:
     def fit(
         self,
         x_train, y_train,
-        x_val=None, y_val=None,
         epochs: int = 100,
         batch_size: int = 32,
-        shuffle: bool = True,
         seed: int | None = None,
         print_every: int = 10,
+        x_val=None, y_val=None,
+        shuffle: bool = True,
         early_stopping_patience: int | None = None,
         early_stopping_min_delta: float = 0.0,
         restore_best: bool = True,
@@ -47,7 +47,7 @@ class Trainer:
         rng = np.random.default_rng(seed)
         n = x_train.shape[0]
 
-        best_val = float("inf")
+        best_metric = float("inf")
         best_state = None
         patience_left = early_stopping_patience
 
@@ -72,9 +72,9 @@ class Trainer:
             if x_val is not None and y_val is not None:
                 val_loss = self.eval_step(x_val, y_val)
 
-                improved = (best_val - val_loss) > float(early_stopping_min_delta)
+                improved = (best_metric - val_loss) > float(early_stopping_min_delta)
                 if improved:
-                    best_val = val_loss
+                    best_metric = val_loss
                     if restore_best:
                         best_state = self.model.state_dict()
                     patience_left = early_stopping_patience
@@ -89,10 +89,11 @@ class Trainer:
                     print(f"Epoch {e:03d} | loss={epoch_loss:.6f} | val_loss={val_loss:.6f}")
 
             if early_stopping_patience is not None and patience_left is not None and patience_left <= 0:
-                if restore_best and best_state is not None:
-                    self.model.load_state_dict(best_state, strict=True)
-                print(f"Early stopping at epoch {e:03d}. Best val_loss={best_val:.6f}")
+                print(f"Early stopping at epoch {e:03d}. Best val_loss={best_metric:.6f}")
                 break
+
+        if restore_best and best_state is not None:
+            self.model.load_state_dict(best_state, strict=True)
 
     def predict(self, X):
         return self.model.predict(X)

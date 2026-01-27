@@ -79,6 +79,69 @@ def grad_check_module(
         "checks": details
     }
 
+
+def grad_check_input(
+    module: Module,
+    x: np.ndarray,
+    dout: np.ndarray | None = None,
+    eps: float = 1e-5,
+    num_checks: int = 20,
+    seed: int = 0
+) -> dict:
+    """
+    Numerical gradient checking for input x (dx) of a Module.
+
+    Approximates d/dx sum(out * dout) using finite differences.
+    """
+    rng = np.random.default_rng(seed)
+
+    out = module.forward(x)
+    if dout is None:
+        dout = rng.standard_normal(out.shape).astype(out.dtype)
+
+    def scalar_out(x_var: np.ndarray) -> float:
+        out_var = module.forward(x_var)
+        return float(np.sum(out_var * dout))
+
+    # analytic dx
+    module.zero_grad()
+    dx = module.backward(dout)
+
+    flat_x = x.reshape(-1)
+    flat_dx = dx.reshape(-1)
+
+    idxs = rng.choice(flat_x.size, size=min(num_checks, flat_x.size), replace=False)
+    details = []
+    max_rel = 0.0
+
+    for idx in idxs:
+        old = float(flat_x[idx])
+
+        flat_x[idx] = old + eps
+        plus = scalar_out(x.reshape(out.shape[0], *x.shape[1:]) if x.ndim > 1 else x)
+
+        flat_x[idx] = old - eps
+        minus = scalar_out(x.reshape(out.shape[0], *x.shape[1:]) if x.ndim > 1 else x)
+
+        flat_x[idx] = old  # restore
+
+        num = (plus - minus) / (2 * eps)
+        ana = float(flat_dx[idx])
+        rel = _relative_error(num, ana)
+        max_rel = max(max_rel, rel)
+
+        details.append({
+            "index": int(idx),
+            "numeric": num,
+            "analytic": ana,
+            "relative_error": rel
+        })
+
+    return {
+        "max_relative_error": max_rel,
+        "checks": details
+    }
+
 def grad_check_input(
     module: Module,
     x: np.ndarray,

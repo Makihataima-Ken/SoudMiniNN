@@ -1,28 +1,34 @@
 import numpy as np # type: ignore
-from typing import Iterable
 from ..core.parameter import Parameter
+from typing import Iterable
 
 def clip_grad_norm_(parameters: Iterable[Parameter], max_norm: float, eps: float = 1e-12) -> float:
     """
-    Clip gradients in-place to have global norm <= max_norm.
-    Returns the (pre-clipping) total norm.
+    In-place gradient clipping by global L2 norm (PyTorch-like).
 
-    Similar to torch.nn.utils.clip_grad_norm_ (educational).
+    Returns:
+        total_norm (float): L2 norm of all gradients before clipping.
     """
-    params = [p for p in parameters if p.requires_grad and p.grad is not None]
-    if not params:
+    params = list(parameters)
+    grads = []
+    for p in params:
+        if p is None or not isinstance(p, Parameter):
+            continue
+        if not p.requires_grad:
+            continue
+        if p.grad is None:
+            continue
+        grads.append(p.grad)
+
+    if not grads:
         return 0.0
 
-    total_sq = 0.0
-    for p in params:
-        g = p.grad
-        total_sq += float(np.sum(g * g))
+    # flatten and accumulate squared norms
+    total_norm = np.sqrt(sum(float(np.sum(g.astype(np.float64) ** 2)) for g in grads))
 
-    total_norm = float(np.sqrt(total_sq))
-    if total_norm <= max_norm:
-        return total_norm
+    if total_norm > max_norm:
+        clip_coef = max_norm / (total_norm + eps)
+        for g in grads:
+            g *= clip_coef
 
-    scale = max_norm / (total_norm + eps)
-    for p in params:
-        p.grad[...] = p.grad * scale
-    return total_norm
+    return float(total_norm)

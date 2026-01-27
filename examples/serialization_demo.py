@@ -1,59 +1,56 @@
-import numpy as np # type: ignore
-
 import os
 import sys
+import pickle
+import numpy as np # type: ignore
 
-# Allow running the example directly from the repo root without installing the package.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import pickle
-
-from SoudMiniNN.network import Network
+from SoudMiniNN.core.sequential import Sequential
 from SoudMiniNN.layers.dense import Dense
 from SoudMiniNN.layers.activations import ReLU
-from SoudMiniNN.losses.softmax_func import CrossEntropyLoss
-from SoudMiniNN.optimizers.adam import Adam
+from SoudMiniNN.losses.mse_func import MSELoss
+from SoudMiniNN.optimizers.sgd import SGD
+
 
 def main():
-    np.random.seed(0)
+    np.random.seed(7)
 
-    x = np.random.randn(10, 4).astype(np.float32)
-    y = np.random.randint(0, 3, size=(10,)).astype(np.int64)
+    # simple regression model
+    model = Sequential(Dense(3, 5, init="xavier"), ReLU(), Dense(5, 1, init="xavier"))
+    loss_fn = MSELoss()
+    opt = SGD(model.parameters(), lr=0.1)
 
-    model = Network(
-        layers=[Dense(4, 8), ReLU(), Dense(8, 3)],
-        loss=CrossEntropyLoss()
-    )
+    x = np.random.randn(4, 3).astype(np.float32)
+    y = np.random.randn(4, 1).astype(np.float32)
 
-    opt = Adam(model.parameters(), lr=1e-2)
-
-    # one step
-    model.train()
-    logits = model.forward(x)
-    loss = model.loss_fn.forward(logits, y)
-    dlogits = model.loss_fn.backward()
-    model.backward(dlogits)
+    # one training step
+    preds = model.forward(x)
+    loss = loss_fn.forward(preds, y)
+    dpreds = loss_fn.backward()
+    model.backward(dpreds)
     opt.step()
-    model.zero_grad()
 
-    sd = model.state_dict()
+    print("Loss after one step:", loss)
 
-    with open("model_state.pkl", "wb") as f:
-        pickle.dump(sd, f)
+    # save
+    state = model.state_dict()
+    save_path = os.path.join(os.path.dirname(__file__), "demo_state.pkl")
+    with open(save_path, "wb") as f:
+        pickle.dump(state, f)
+    print(f"Saved state_dict to {save_path}")
 
-    # load into a new model
-    model2 = Network(
-        layers=[Dense(4, 8), ReLU(), Dense(8, 3)],
-        loss=CrossEntropyLoss()
-    )
-    with open("model_state.pkl", "rb") as f:
-        sd2 = pickle.load(f)
-    model2.load_state_dict(sd2)
+    # load into a fresh model
+    new_model = Sequential(Dense(3, 5, init="xavier"), ReLU(), Dense(5, 1, init="xavier"))
+    with open(save_path, "rb") as f:
+        loaded = pickle.load(f)
+    new_model.load_state_dict(loaded, strict=True)
 
-    # check same output
-    out1 = model.forward(x)
-    out2 = model2.forward(x)
-    print("max abs diff after load:", float(np.max(np.abs(out1 - out2))))
+    # compare outputs
+    old_out = model.forward(x)
+    new_out = new_model.forward(x)
+    diff = np.max(np.abs(old_out - new_out))
+    print("Max difference between original and reloaded outputs:", diff)
+
 
 if __name__ == "__main__":
     main()
