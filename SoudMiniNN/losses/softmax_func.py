@@ -43,7 +43,3 @@ class CrossEntropyLoss(Loss):
         if self.reduction == "mean":
             grad /= N
         return grad
-
-
-# Backward-compatible alias (old name used in your earlier code)
-SoftmaxCrossEntropy = CrossEntropyLoss
