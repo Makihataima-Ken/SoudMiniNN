@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 
 def he_init(fan_in: int, fan_out: int) -> np.ndarray:
     # Kaiming/He normal

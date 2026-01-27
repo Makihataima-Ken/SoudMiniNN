@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 from .base_loss import Loss
 
 class MSELoss(Loss):

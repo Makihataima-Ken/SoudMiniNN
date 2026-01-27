@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 from ..core.module import Module
 from ..utils.im2col import im2col, col2im
 

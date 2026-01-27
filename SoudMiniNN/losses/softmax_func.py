@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 from .base_loss import Loss
 
 def _log_softmax(logits: np.ndarray, axis: int = 1) -> np.ndarray:

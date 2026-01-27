@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 
 from SoudMiniNN.network import Network
 from SoudMiniNN.trainer import Trainer

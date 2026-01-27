@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 from .network import Network
 from .optimizers.base_optimizer import Optimizer
 

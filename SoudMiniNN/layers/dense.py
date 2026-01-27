@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 from ..core.module import Module
 from ..core.parameter import Parameter
 from ..core.__init__ import he_init, xavier_init

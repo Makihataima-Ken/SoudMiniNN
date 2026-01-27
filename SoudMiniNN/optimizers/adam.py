@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 from .base_optimizer import Optimizer
 
 class Adam(Optimizer):

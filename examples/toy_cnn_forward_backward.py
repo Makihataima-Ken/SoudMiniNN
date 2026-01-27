@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 
 from SoudMiniNN.core.sequential import Sequential
 from SoudMiniNN.layers.conv2d import Conv2D

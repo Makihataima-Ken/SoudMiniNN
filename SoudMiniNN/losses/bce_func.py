@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 from .base_loss import Loss
 
 def _sigmoid(x: np.ndarray) -> np.ndarray:
