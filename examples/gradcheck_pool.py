@@ -13,8 +13,8 @@ def main():
 
     pool = MaxPool2D(kernel_size=2, stride=2)
 
-    x = np.random.randn(1, 1, 4, 4).astype(np.float32)
-    dout = np.random.randn(1, 1, 2, 2).astype(np.float32)
+    x = np.random.randn(1, 1, 4, 4).astype(np.float64)
+    dout = np.random.randn(1, 1, 2, 2).astype(np.float64)
 
     input_report = grad_check_input(pool, x, dout=dout, eps=1e-4, num_checks=10)
 

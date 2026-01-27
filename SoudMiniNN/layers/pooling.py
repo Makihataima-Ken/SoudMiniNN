@@ -23,7 +23,6 @@ class MaxPool2D(Module):
     def forward(self, x: np.ndarray) -> np.ndarray:
         if x.ndim != 4:
             raise ValueError(f"MaxPool2D expects x with shape (N,C,H,W), got {x.shape}")
-        x = x.astype(np.float32, copy=False)
         N, C, H, W = x.shape
 
         # Pool per channel: treat N*C as batch and channel=1
@@ -77,7 +76,6 @@ class AvgPool2D(Module):
     def forward(self, x: np.ndarray) -> np.ndarray:
         if x.ndim != 4:
             raise ValueError(f"AvgPool2D expects x with shape (N,C,H,W), got {x.shape}")
-        x = x.astype(np.float32, copy=False)
         N, C, H, W = x.shape
 
         x_ = x.reshape(N * C, 1, H, W)

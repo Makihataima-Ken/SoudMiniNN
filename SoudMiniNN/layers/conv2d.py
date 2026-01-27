@@ -75,7 +75,6 @@ class Conv2D(Module):
         if x.shape[1] != self.in_channels:
             raise ValueError(f"Conv2D expected in_channels={self.in_channels}, got {x.shape[1]}")
 
-        x = x.astype(np.float32, copy=False)
 
         col, out_h, out_w = im2col(x, self.kH, self.kW, stride=self.stride, padding=self.padding)
         W_col = self.W.data.reshape(self.out_channels, -1)
