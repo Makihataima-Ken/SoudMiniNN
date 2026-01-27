@@ -1,6 +1,11 @@
-import numpy as np
-from soudmininn.layers.conv2d import Conv2D
-from soudmininn.utils.grad_check import grad_check_module
+import numpy as np # type: ignore
+import os
+import sys
+
+# Allow running the example directly from the repo root without installing the package.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from SoudMiniNN.layers.conv2d import Conv2D
+from SoudMiniNN.utils.grad_check import grad_check_module
 
 def main():
     np.random.seed(0)

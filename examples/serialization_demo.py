@@ -1,11 +1,18 @@
-import numpy as np
+import numpy as np # type: ignore
+
+import os
+import sys
+
+# Allow running the example directly from the repo root without installing the package.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import pickle
 
-from soudmininn.network import Network
-from soudmininn.layers.dense import Dense
-from soudmininn.layers.activations import ReLU
-from soudmininn.losses.softmax_func import CrossEntropyLoss
-from soudmininn.optimizers.adam import Adam
+from SoudMiniNN.network import Network
+from SoudMiniNN.layers.dense import Dense
+from SoudMiniNN.layers.activations import ReLU
+from SoudMiniNN.losses.softmax_func import CrossEntropyLoss
+from SoudMiniNN.optimizers.adam import Adam
 
 def main():
     np.random.seed(0)

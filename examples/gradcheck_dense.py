@@ -1,8 +1,15 @@
-import numpy as np
-from soudmininn.core.sequential import Sequential
-from soudmininn.layers.dense import Dense
-from soudmininn.layers.activations import ReLU
-from soudmininn.utils.grad_check import grad_check_module
+import numpy as np # type: ignore
+
+import os
+import sys
+
+# Allow running the example directly from the repo root without installing the package.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from SoudMiniNN.core.sequential import Sequential
+from SoudMiniNN.layers.dense import Dense
+from SoudMiniNN.layers.activations import ReLU
+from SoudMiniNN.utils.grad_check import grad_check_module
 
 def main():
     np.random.seed(0)
