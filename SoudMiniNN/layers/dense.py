@@ -1,7 +1,7 @@
 import numpy as np
 from ..core.module import Module
 from ..core.parameter import Parameter
-from ..core.init import he_init, xavier_init
+from ..core.__init__ import he_init, xavier_init
 
 class Dense(Module):
     def __init__(self, input_size: int, output_size: int, init: str = "he"):
