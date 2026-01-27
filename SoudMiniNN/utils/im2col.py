@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # type: ignore
 
 def im2col(x: np.ndarray, kernel_h: int, kernel_w: int, stride: int = 1, padding: int = 0) -> tuple[np.ndarray, int, int]:
     """
