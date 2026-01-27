@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 class Loss(ABC):
     @abstractmethod
-    def forward(self, y_pred, y_true):
+    def forward(self, preds, targets):
         pass
 
     @abstractmethod
