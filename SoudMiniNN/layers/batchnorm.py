@@ -1,66 +1,68 @@
 import numpy as np
-from .base_layer import Layer
+from ..core.module import Module
+from ..core.parameter import Parameter
 
-class BatchNorm(Layer):
-    def __init__(self, input_size, momentum=0.9):
-        self.gamma = np.ones((1, input_size))
-        self.beta = np.zeros((1, input_size))
+class BatchNorm1d(Module):
+    """
+    Educational BatchNorm for (N, D) tensors.
+    Similar behavior to PyTorch BatchNorm1d for 2D inputs.
+
+    Notes:
+    - running_mean/var updated with momentum
+    - uses biased variance (np.var with ddof=0)
+    """
+    def __init__(self, num_features: int, eps: float = 1e-5, momentum: float = 0.1):
+        super().__init__()
+        self.gamma = Parameter(np.ones((1, num_features), dtype=np.float32), name="gamma")
+        self.beta = Parameter(np.zeros((1, num_features), dtype=np.float32), name="beta")
+        self.eps = eps
         self.momentum = momentum
 
-        self.running_mean = None
-        self.running_var = None
+        self.running_mean = np.zeros((1, num_features), dtype=np.float32)
+        self.running_var = np.ones((1, num_features), dtype=np.float32)
 
-        self.batch_size = None
-        self.xc = None
-        self.std = None
-        self.xn = None
-        self.dgamma = None
-        self.dbeta = None
+        # cache for backward
+        self.x_centered = None
+        self.std_inv = None
+        self.x_hat = None
+        self.batch_mean = None
+        self.batch_var = None
 
-    def forward(self, x, training=True):
-        
-        if self.running_mean is None:
-            self.running_mean = np.zeros(x.shape[1])
-            self.running_var = np.zeros(x.shape[1])
+    def forward(self, x):
+        if self.training:
+            self.batch_mean = np.mean(x, axis=0, keepdims=True)
+            self.batch_var = np.var(x, axis=0, keepdims=True)
 
-        if training:
-            mu = x.mean(axis=0)
-            xc = x - mu
-            var = np.mean(xc**2, axis=0)
-            std = np.sqrt(var + 10e-7)
-            xn = xc / std
+            self.x_centered = x - self.batch_mean
+            std = np.sqrt(self.batch_var + self.eps)
+            self.std_inv = 1.0 / std
+            self.x_hat = self.x_centered * self.std_inv
 
-            self.batch_size = x.shape[0]
-            self.xc = xc
-            self.xn = xn
-            self.std = std
-
-            self.running_mean = self.momentum * self.running_mean + (1 - self.momentum) * mu
-            self.running_var = self.momentum * self.running_var + (1 - self.momentum) * var
+            # update running stats (PyTorch-like: running = (1-mom)*running + mom*batch)
+            self.running_mean = (1.0 - self.momentum) * self.running_mean + self.momentum * self.batch_mean
+            self.running_var = (1.0 - self.momentum) * self.running_var + self.momentum * self.batch_var
         else:
-            xc = x - self.running_mean
-            xn = xc / (np.sqrt(self.running_var + 10e-7))
+            self.x_hat = (x - self.running_mean) / np.sqrt(self.running_var + self.eps)
 
-        out = self.gamma * xn + self.beta
-        return out
-    
+        return self.gamma.data * self.x_hat + self.beta.data
+
     def backward(self, grad):
-        self.dbeta = grad.sum(axis=0, keepdims=True)
-        self.dgamma = np.sum(self.xn * grad, axis=0, keepdims=True)
+        # grad is dL/dy (y = gamma*x_hat + beta)
+        N = grad.shape[0]
+        self.gamma.grad[...] = np.sum(grad * self.x_hat, axis=0, keepdims=True)
+        self.beta.grad[...] = np.sum(grad, axis=0, keepdims=True)
 
-        dxn = self.gamma * grad
-        dxc = dxn / self.std
-        dstd = -np.sum((dxn * self.xc) / (self.std * self.std), axis=0)
-        dvar = 0.5 * dstd / self.std
-        dxc += (2.0 / self.batch_size) * self.xc * dvar
-        dmu = -np.sum(dxc, axis=0)
-        dx = dxc + dmu / self.batch_size
-        
+        dxhat = grad * self.gamma.data
+
+        if not self.training:
+            # for eval-mode, treat normalization constants as fixed
+            return dxhat / np.sqrt(self.running_var + self.eps)
+
+        # Backprop through normalization:
+        # x_hat = (x - mean) / sqrt(var + eps)
+        # Standard derivation
+        dvar = np.sum(dxhat * self.x_centered * -0.5 * (self.batch_var + self.eps) ** (-1.5), axis=0, keepdims=True)
+        dmean = np.sum(dxhat * -self.std_inv, axis=0, keepdims=True) + dvar * np.mean(-2.0 * self.x_centered, axis=0, keepdims=True)
+
+        dx = dxhat * self.std_inv + dvar * 2.0 * self.x_centered / N + dmean / N
         return dx
-    
-    def params(self):
-        return {'gamma': self.gamma, 'beta': self.beta}
-
-    def grads(self):
-        return {'gamma': self.dgamma, 'beta': self.dbeta}
-
