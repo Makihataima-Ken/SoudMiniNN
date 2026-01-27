@@ -1,10 +1,11 @@
 import numpy as np
-from soudmininn.network import Network
-from soudmininn.trainer import Trainer
-from soudmininn.layers.dense import Dense
-from soudmininn.layers.activations import ReLU
-from soudmininn.losses.softmax_func import CrossEntropyLoss
-from soudmininn.optimizers.adam import Adam
+
+from SoudMiniNN.network import Network
+from SoudMiniNN.trainer import Trainer
+from SoudMiniNN.layers.dense import Dense
+from SoudMiniNN.layers.activations import ReLU
+from SoudMiniNN.losses.softmax_func import CrossEntropyLoss
+from SoudMiniNN.optimizers.adam import Adam
 
 def make_toy(n=300, seed=0):
     rng = np.random.default_rng(seed)

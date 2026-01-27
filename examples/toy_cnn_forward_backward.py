@@ -1,13 +1,13 @@
 import numpy as np
 
-from soudmininn.core.sequential import Sequential
-from soudmininn.layers.conv2d import Conv2D
-from soudmininn.layers.pooling import MaxPool2D
-from soudmininn.layers.activations import ReLU
-from soudmininn.layers.flatten import Flatten
-from soudmininn.layers.dense import Dense
-from soudmininn.losses.softmax_func import CrossEntropyLoss
-from soudmininn.optimizers.adam import Adam
+from SoudMiniNN.core.sequential import Sequential
+from SoudMiniNN.layers.conv2d import Conv2D
+from SoudMiniNN.layers.pooling import MaxPool2D
+from SoudMiniNN.layers.activations import ReLU
+from SoudMiniNN.layers.flatten import Flatten
+from SoudMiniNN.layers.dense import Dense
+from SoudMiniNN.losses.softmax_func import CrossEntropyLoss
+from SoudMiniNN.optimizers.adam import Adam
 
 def main():
     np.random.seed(0)
