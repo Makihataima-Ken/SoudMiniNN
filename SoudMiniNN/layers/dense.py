@@ -1,42 +1,30 @@
 import numpy as np
-from .base_layer import Layer
+from ..core.module import Module
+from ..core.parameter import Parameter
+from ..core.init import he_init, xavier_init
 
-class Dense(Layer):
-    def __init__(self, input_size, output_size, init ="he"):
-        
-        if init  == "he":
-            self.W = self._he_init(input_size, output_size)
-        elif init == "xavier" or init == "glorot":
-            self.W = self._xavier_init(input_size, output_size)
+class Dense(Module):
+    def __init__(self, input_size: int, output_size: int, init: str = "he"):
+        super().__init__()
+        if init.lower() in ("he", "kaiming"):
+            W = he_init(input_size, output_size)
+        elif init.lower() in ("xavier", "glorot"):
+            W = xavier_init(input_size, output_size)
+        else:
+            raise ValueError(f"Unknown init='{init}' (use 'he' or 'xavier').")
 
-        self.b = np.zeros((1, output_size))
-        
+        self.W = Parameter(W, name="W")
+        self.b = Parameter(np.zeros((1, output_size), dtype=np.float32), name="b")
         self.x = None
-        self.dW = None
-        self.db = None
-        
-    def forward(self, x, training=True):
+
+    def forward(self, x):
         self.x = x
-        return x @ self.W + self.b
-    
+        return x @ self.W.data + self.b.data
+
     def backward(self, grad):
-        self.dW = self.x.T @ grad
-        self.db = np.sum(grad, axis=0, keepdims=True)
-        return grad @ self.W.T
-    
-    def params(self):
-        return {'W': self.W, 'b': self.b}
-
-    def grads(self):
-        return {'W': self.dW, 'b': self.db}
-    
-    def _xavier_init(self, fan_in, fan_out):
-        std = np.sqrt(2 / (fan_in + fan_out))
-        return np.random.randn(fan_in, fan_out) * std
-    
-    def _he_init(self, fan_in, fan_out):
-        std = np.sqrt(2 / fan_in)
-        return np.random.randn(fan_in, fan_out) * std
-
-    
-    
+        # grad: dL/dout
+        # dW = x^T @ grad, db = sum(grad)
+        self.W.grad[...] = self.x.T @ grad
+        self.b.grad[...] = np.sum(grad, axis=0, keepdims=True)
+        # dx = grad @ W^T
+        return grad @ self.W.data.T
