@@ -2,25 +2,35 @@ import numpy as np
 from .base_optimizer import Optimizer
 
 class Adam(Optimizer):
-    def __init__(self, lr=0.001, beta1=0.9, beta2=0.999):
-        self.lr = lr
+    def __init__(self, params, lr: float = 1e-3, beta1: float = 0.9, beta2: float = 0.999,
+                 eps: float = 1e-8, weight_decay: float = 0.0):
+        super().__init__(params, lr)
         self.beta1 = beta1
         self.beta2 = beta2
-        self.iter = 0
-        self.m = None
-        self.v = None
+        self.eps = eps
+        self.weight_decay = weight_decay
+        self.t = 0
+        self.m = {}
+        self.v = {}
 
-    def update(self, params:dict, grads:dict):
-        if self.m is None:
-            self.m, self.v = {}, {}
-            for key, val in params.items():
-                self.m[key] = np.zeros_like(val)
-                self.v[key] = np.zeros_like(val)
+    def step(self) -> None:
+        self.t += 1
+        for p in self.params:
+            if not p.requires_grad:
+                continue
+            key = id(p)
+            if key not in self.m:
+                self.m[key] = np.zeros_like(p.data)
+                self.v[key] = np.zeros_like(p.data)
 
-        self.iter += 1
-        lr_t  = self.lr * np.sqrt(1.0 - self.beta2**self.iter) / (1.0 - self.beta1**self.iter)
+            grad = p.grad
+            if self.weight_decay != 0.0:
+                grad = grad + self.weight_decay * p.data
 
-        for key in params.keys():
-            self.m[key] += (1 - self.beta1) * (grads[key] - self.m[key])
-            self.v[key] += (1 - self.beta2) * (grads[key]**2 - self.v[key])
-            params[key] -= lr_t * self.m[key] / (np.sqrt(self.v[key]) + 1e-7)
+            self.m[key] = self.beta1 * self.m[key] + (1 - self.beta1) * grad
+            self.v[key] = self.beta2 * self.v[key] + (1 - self.beta2) * (grad * grad)
+
+            m_hat = self.m[key] / (1 - self.beta1 ** self.t)
+            v_hat = self.v[key] / (1 - self.beta2 ** self.t)
+
+            p.data[...] = p.data - self.lr * m_hat / (np.sqrt(v_hat) + self.eps)
