@@ -1,10 +1,23 @@
 import numpy as np
 from .base_loss import Loss
 
-class MeanSquaredError(Loss):
+class MSELoss(Loss):
+    def __init__(self, reduction: str = "mean"):
+        self.reduction = reduction
+        self.y_pred = None
+        self.y_true = None
+
     def forward(self, y_pred, y_true):
-        self.diff = y_pred - y_true
-        return np.mean(self.diff ** 2)
+        self.y_pred = y_pred
+        self.y_true = y_true
+        loss = (y_pred - y_true) ** 2
+        if self.reduction == "mean":
+            return float(np.mean(loss))
+        return float(np.sum(loss))
 
     def backward(self):
-        return 2 * self.diff / len(self.diff)
+        # d/dy_pred ( (y_pred - y_true)^2 ) = 2*(y_pred - y_true)
+        grad = 2.0 * (self.y_pred - self.y_true)
+        if self.reduction == "mean":
+            grad = grad / self.y_pred.size
+        return grad
