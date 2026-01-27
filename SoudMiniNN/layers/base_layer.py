@@ -1,17 +1,4 @@
-from abc import ABC, abstractmethod
+from ..core.module import Module
 
-class Layer(ABC):
-    
-    @abstractmethod
-    def forward(self, x, training=True):
-        pass
-
-    @abstractmethod
-    def backward(self, grad):
-        pass
-
-    def params(self):
-        return {}
-
-    def grads(self):
-        return {}
+# For readability in labs: Layer == Module
+Layer = Module
