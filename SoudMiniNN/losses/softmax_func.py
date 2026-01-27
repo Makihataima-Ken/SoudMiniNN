@@ -1,28 +1,49 @@
 import numpy as np
 from .base_loss import Loss
 
-class SoftmaxCrossEntropy(Loss):
-    def forward(self, logits, y_true):
-        self.probs = softmax(logits)
-        
-        if y_true.ndim == 2:
-            self.y_true = np.argmax(y_true, axis=1)
-        else:
-            self.y_true = y_true
+def _log_softmax(logits: np.ndarray, axis: int = 1) -> np.ndarray:
+    # log_softmax(x) = x - log(sum(exp(x)))
+    x_shift = logits - np.max(logits, axis=axis, keepdims=True)
+    logsumexp = np.log(np.sum(np.exp(x_shift), axis=axis, keepdims=True) + 1e-12)
+    return x_shift - logsumexp
 
-        log_likelihood = -np.log(self.probs[range(len(self.y_true)), self.y_true] + 1e-7)
-        return np.mean(log_likelihood)
+class CrossEntropyLoss(Loss):
+    """
+    CrossEntropyLoss over class logits.
+    - logits: (N, C)
+    - targets: (N,) class indices OR (N, C) one-hot
+    Returns mean loss by default (PyTorch-like).
+    """
+    def __init__(self, reduction: str = "mean"):
+        self.reduction = reduction
+        self.log_probs = None
+        self.probs = None
+        self.targets = None
+
+    def forward(self, logits, targets):
+        self.log_probs = _log_softmax(logits, axis=1)
+        self.probs = np.exp(self.log_probs)
+
+        if targets.ndim == 2:
+            self.targets = np.argmax(targets, axis=1)
+        else:
+            self.targets = targets.astype(int)
+
+        N = logits.shape[0]
+        loss = -self.log_probs[np.arange(N), self.targets]
+        if self.reduction == "mean":
+            return float(np.mean(loss))
+        return float(np.sum(loss))
 
     def backward(self):
+        # dL/dlogits = (softmax - one_hot)/N for mean reduction
+        N, C = self.probs.shape
         grad = self.probs.copy()
-        
-        y_true = self.y_true
-        if y_true.ndim == 2:
-            y_true = np.argmax(y_true, axis=1)
+        grad[np.arange(N), self.targets] -= 1.0
+        if self.reduction == "mean":
+            grad /= N
+        return grad
 
-        grad[range(len(y_true)), y_true] -= 1
-        return grad / len(y_true)
 
-def softmax(x):
-    exp = np.exp(x - np.max(x, axis=-1, keepdims=True))
-    return exp / np.sum(exp, axis=-1, keepdims=True)
+# Backward-compatible alias (old name used in your earlier code)
+SoftmaxCrossEntropy = CrossEntropyLoss
