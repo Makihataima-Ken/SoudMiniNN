@@ -1,5 +1,9 @@
 import numpy as np # type: ignore
+import os
+import sys
 
+# Allow running the example directly from the repo root without installing the package.
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from SoudMiniNN.network import Network
 from SoudMiniNN.trainer import Trainer
 from SoudMiniNN.layers.dense import Dense
