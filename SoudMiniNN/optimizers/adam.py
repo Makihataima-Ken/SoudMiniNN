@@ -34,3 +34,32 @@ class Adam(Optimizer):
             v_hat = self.v[key] / (1 - self.beta2 ** self.t)
 
             p.data[...] = p.data - self.lr * m_hat / (np.sqrt(v_hat) + self.eps)
+
+def state_dict(self) -> dict:
+    m_list = [self.m.get(id(p), np.zeros_like(p.data)) for p in self.params]
+    v_list = [self.v.get(id(p), np.zeros_like(p.data)) for p in self.params]
+    return {
+        "type":"Adam",
+        "lr": self.lr,
+        "beta1": self.beta1,
+        "beta2": self.beta2,
+        "eps": self.eps,
+        "weight_decay": self.weight_decay,
+        "t": self.t,
+        "m": [m.copy() for m in m_list],
+        "v": [v.copy() for v in v_list],
+    }
+
+def load_state_dict(self, state: dict) -> None:
+    self.lr = float(state.get("lr", self.lr))
+    self.beta1 = float(state.get("beta1", self.beta1))
+    self.beta2 = float(state.get("beta2", self.beta2))
+    self.eps = float(state.get("eps", self.eps))
+    self.weight_decay = float(state.get("weight_decay", self.weight_decay))
+    self.t = int(state.get("t", self.t))
+    m_list = state.get("m", None)
+    v_list = state.get("v", None)
+    if isinstance(m_list, list) and len(m_list) == len(self.params):
+        self.m = {id(p): m_list[i].copy() for i, p in enumerate(self.params)}
+    if isinstance(v_list, list) and len(v_list) == len(self.params):
+        self.v = {id(p): v_list[i].copy() for i, p in enumerate(self.params)}

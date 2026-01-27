@@ -14,3 +14,12 @@ class Optimizer(ABC):
     @abstractmethod
     def step(self) -> None:
         pass
+
+def state_dict(self) -> dict:
+    """Return optimizer hyperparameters + internal state (educational)."""
+    return {"lr": self.lr, "state": {}}
+
+def load_state_dict(self, state: dict) -> None:
+    """Load optimizer hyperparameters/state."""
+    if "lr" in state:
+        self.lr = float(state["lr"])

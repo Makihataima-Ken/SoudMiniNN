@@ -20,3 +20,21 @@ class Momentum(Optimizer):
                 grad = grad + self.weight_decay * p.data
             self.v[key] = self.momentum * self.v[key] - self.lr * grad
             p.data[...] = p.data + self.v[key]
+
+def state_dict(self) -> dict:
+    v_list = [self.v.get(id(p), np.zeros_like(p.data)) for p in self.params]
+    return {
+        "type":"Momentum",
+        "lr": self.lr,
+        "momentum": self.momentum,
+        "weight_decay": self.weight_decay,
+        "v": [v.copy() for v in v_list],
+    }
+
+def load_state_dict(self, state: dict) -> None:
+    self.lr = float(state.get("lr", self.lr))
+    self.momentum = float(state.get("momentum", self.momentum))
+    self.weight_decay = float(state.get("weight_decay", self.weight_decay))
+    v_list = state.get("v", None)
+    if isinstance(v_list, list) and len(v_list) == len(self.params):
+        self.v = {id(p): v_list[i].copy() for i, p in enumerate(self.params)}

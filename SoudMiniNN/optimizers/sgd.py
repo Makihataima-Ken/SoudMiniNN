@@ -13,3 +13,10 @@ class SGD(Optimizer):
             if self.weight_decay != 0.0:
                 grad = grad + self.weight_decay * p.data
             p.data[...] = p.data - self.lr * grad
+
+def state_dict(self) -> dict:
+    return {"type":"SGD","lr":self.lr,"weight_decay":self.weight_decay}
+
+def load_state_dict(self, state: dict) -> None:
+    self.lr = float(state.get("lr", self.lr))
+    self.weight_decay = float(state.get("weight_decay", self.weight_decay))
