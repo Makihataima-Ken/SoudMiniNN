@@ -3,9 +3,9 @@ from ..core.module import Module
 from ..core.parameter import Parameter
 from ..core.__init__ import he_init, xavier_init
 
-class Dense(Module):
+class Dense(Module): # Linear  take many features and mixed there to make strong features
     def __init__(self, input_size: int, output_size: int, init: str = "he"):
-        super().__init__()
+        super().__init__() # to make the wight balanced
         if init.lower() in ("he", "kaiming"):
             W = he_init(input_size, output_size)
         elif init.lower() in ("xavier", "glorot"):
@@ -13,8 +13,9 @@ class Dense(Module):
         else:
             raise ValueError(f"Unknown init='{init}' (use 'he' or 'xavier').")
 
+        # convert the data to parametr
         self.W = Parameter(W, name="W")
-        self.b = Parameter(np.zeros((1, output_size), dtype=np.float32), name="b")
+        self.b = Parameter(np.zeros((1, output_size), dtype=np.float32), name="b") #broadcast
         self.x = None
 
     def forward(self, x):

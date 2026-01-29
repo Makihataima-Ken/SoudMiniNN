@@ -28,10 +28,6 @@ class Sigmoid(Module):
 
 
 class Softmax(Module):
-    """
-    Usually you DON'T need Softmax as a layer when using CrossEntropyLoss on logits.
-    Keep it for inference/visualization.
-    """
     def __init__(self, axis: int = 1):
         super().__init__()
         self.axis = axis

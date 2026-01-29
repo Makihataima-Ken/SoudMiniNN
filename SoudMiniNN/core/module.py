@@ -3,16 +3,10 @@ import numpy as np  # type: ignore
 from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union
 from .parameter import Parameter
 
-def _iter_params(obj: Any) -> Iterator[Tuple[str, Parameter]]:
-    """
-    Recursively iterate Parameters inside objects.
-    Supports:
-      - Parameter
-      - Module
-      - list/tuple
-      - dict
-    """
 
+#forward-backward _ collect parms _train/eval mode _ zero_grad _ state_dict / load_state_dict 
+
+def _iter_params(obj: Any) -> Iterator[Tuple[str, Parameter]]: 
     if isinstance(obj, Parameter):
         yield ("", obj)
     elif isinstance(obj, Module):
@@ -27,16 +21,10 @@ def _iter_params(obj: Any) -> Iterator[Tuple[str, Parameter]]:
             for n, p in _iter_params(item):
                 yield (f"{k}{('.' + n) if n else ''}", p)
 
-class Module:
-    """
-    PyTorch-like module (educational).
-    - forward(x): compute output
-    - backward(dout): compute gradient w.r.t. input and fill Parameter.grad
-    - parameters(): list of trainable Parameters (recursive)
-    """
+class Module: # make the Libe same pytorch
 
     def __init__(self) -> None:
-        self.training: bool = True
+        self.training: bool = True # for check if the NN on eva phase or train why?? ex: Dropout on evaluate should be off
 
     def forward(self, x, *args, **kwargs):
         raise NotImplementedError
@@ -44,25 +32,22 @@ class Module:
     def backward(self, grad):
         raise NotImplementedError
 
-    def __call__(self, x, *args, **kwargs):
+    def __call__(self, x, *args, **kwargs): # like exactly pytorch / out = model(x) ==out = model.forward(x)
         return self.forward(x, *args, **kwargs)
 
-    def train(self) -> "Module":
+    def train(self) -> "Module": # change sub_modules training status to ture train
         self.training = True
         for _, m in self.named_modules():
             m.training = True
         return self
 
-    def eval(self) -> "Module":
+    def eval(self) -> "Module": # like train but for eval
         self.training = False
         for _, m in self.named_modules():
             m.training = False
         return self
 
-    def named_modules(self) -> Iterator[Tuple[str, "Module"]]:
-        """
-        Yields (name, module) for child modules (recursive), excluding self.
-        """
+    def named_modules(self) -> Iterator[Tuple[str, "Module"]]: # to passeges for all sub_modules  to get all trees train/eval
         for name, value in self.__dict__.items():
             if isinstance(value, Module):
                 yield (name, value)
@@ -81,10 +66,7 @@ class Module:
                         for sub_name, sub_m in item.named_modules():
                             yield (f"{name}.{k}.{sub_name}", sub_m)
 
-    def named_parameters(self) -> Iterator[Tuple[str, Parameter]]:
-        """
-        Yields (name, Parameter) for all parameters (recursive).
-        """
+    def named_parameters(self) -> Iterator[Tuple[str, Parameter]]: # get all parms in model because all opt need know the wight and parms
         # Direct parameters on this module
         for name, value in self.__dict__.items():
             if isinstance(value, Parameter):
@@ -97,29 +79,18 @@ class Module:
                         continue
                     yield (f"{name}.{sub_name}", p)
 
-    def parameters(self) -> List[Parameter]:
+    def parameters(self) -> List[Parameter]: # return list of parms  
         return [p for _, p in self.named_parameters()]
 
-    def zero_grad(self) -> None:
+    def zero_grad(self) -> None: # make all parms zero
         for p in self.parameters():
             p.zero_grad()
 
-    # --- Serialization helpers (PyTorch-like) ---
-    def state_dict(self) -> Dict[str, np.ndarray]:
-        """
-        Return a mapping from parameter name to a *copy* of its data.
-        Only trainable Parameters are included (buffers stay external).
-        """
+    # --- Serialization helpers (PyTorch-like) --- save
+    def state_dict(self) -> Dict[str, np.ndarray]: # name : wight(data)
         return {name: p.data.copy() for name, p in self.named_parameters()}
 
-    def load_state_dict(self, state: Dict[str, np.ndarray], strict: bool = True) -> None:
-        """
-        Load weights from a state dict into existing Parameters.
-
-        Args:
-            state: dict of name -> ndarray (matching shapes)
-            strict: if True, raise on missing/unexpected keys; otherwise ignore them.
-        """
+    def load_state_dict(self, state: Dict[str, np.ndarray], strict: bool = True) -> None: #
         current: Dict[str, Parameter] = {name: p for name, p in self.named_parameters()}
 
         missing = [k for k in current.keys() if k not in state]
@@ -137,43 +108,4 @@ class Module:
             # copy into existing array to keep optimizer references intact
             np.copyto(param.data, arr.astype(param.data.dtype, copy=False))
 
-        # ignore unexpected keys if non-strict
 
-
-def state_dict(self) -> Dict[str, np.ndarray]:
-    """
-    Return a dictionary mapping parameter names -> numpy arrays.
-    Similar idea to torch.nn.Module.state_dict (educational).
-    """
-    sd: Dict[str, np.ndarray] = {}
-    for name, p in self.named_parameters():
-        sd[name] = p.data.copy()
-    return sd
-
-def load_state_dict(self, state: Dict[str, "np.ndarray"], strict: bool = True) -> None:
-    """
-    Load parameters from a state dict produced by state_dict().
-
-    Args:
-        state: mapping name -> array
-        strict: if True, error on missing/unexpected keys.
-    """
-    current = dict(self.named_parameters())
-    missing = []
-    unexpected = []
-
-    for k, arr in state.items():
-        if k in current:
-            p = current[k]
-            if p.data.shape != arr.shape:
-                raise ValueError(f"Shape mismatch for '{k}': expected {p.data.shape}, got {arr.shape}")
-            p.data[...] = arr
-        else:
-            unexpected.append(k)
-
-    for k in current.keys():
-        if k not in state:
-            missing.append(k)
-
-    if strict and (missing or unexpected):
-        raise KeyError(f"load_state_dict strict=True: missing={missing}, unexpected={unexpected}")
